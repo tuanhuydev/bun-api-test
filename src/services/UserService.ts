@@ -1,6 +1,6 @@
-import { prismaClient } from '../configs/prisma';
-import type { UserBody } from '../types/user';
-import { randomUUID } from 'node:crypto';
+import UserRepository from '@/repositories/UserRepository';
+import type { NewUserData } from '@/types/user';
+import { randomUUID } from 'crypto';
 
 class UserService {
   static instance: UserService;
@@ -13,24 +13,23 @@ class UserService {
   }
 
   async findUserByEmail(email: string) {
-    const user = await prismaClient.users.findUnique({ where: { email } });
+    const user = await UserRepository.getUserByEmail(email);
+    console.log(user);
     if (!user) throw new Error('User not found');
     return user;
   }
 
-  async createUser(data: Partial<UserBody>) {
-    const user = await prismaClient.users.findUnique({
-      where: { email: data.email },
-    });
+  async createUser({ email, ...restUserBody }: NewUserData) {
+    const user = await UserRepository.getUserByEmail(email);
     if (user) throw new Error('User already exists');
 
     // TODO: remove permission hardcode
     const newUser = {
-      ...data,
+      ...restUserBody,
       id: randomUUID(),
-      permissions: { connect: { id: 1 } },
     };
-    return prismaClient.users.create({ data: newUser as any });
+    return newUser;
+    // return prismaClient.users.create({ data: newUser as any });
   }
 }
 export const userService = new UserService().makeInstance();
