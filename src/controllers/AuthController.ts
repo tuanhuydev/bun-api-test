@@ -1,5 +1,5 @@
-import { userService } from '@/services/UserService';
 import { ACCESS_TOKEN_LIFE, REFRESH_TOKEN_LIFE } from '@/configs/constants';
+import { userService } from '@/services/UserService';
 import type { SignInEmailPassword } from '@/types/user';
 
 type SignInParams = {
